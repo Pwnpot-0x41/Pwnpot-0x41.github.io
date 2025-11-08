@@ -3,22 +3,14 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>GitHub Redirect</title>
     <script>
         const url = "https://9bb8bf9a5d86.ngrok-free.app/index.html";
 
-
-        // Need to perform redirection with custom header, so we use fetch to trigger preflight
-        // gotta add cors cause: Le corps de la réponse n’est pas disponible aux scripts (raison : CORS Missing Allow Origin)
-        // Gotta add ngrok-skip-browser-warning to bypass ngrok browser warning
         fetch(url, {
             method: 'GET',
             headers: {
                 'ngrok-skip-browser-warning': 'true',
-                'X-Custom-Header': 'MyValue'
             },
-            mode: 'cors'
         }).then(response => {
             // After preflight, navigate to the URL
             window.location.href = url;
@@ -30,9 +22,5 @@
 
     </script>
 </head>
-
-<body>
-    <h1>Redirecting to GitHub...</h1>
-</body>
 
 </html>
