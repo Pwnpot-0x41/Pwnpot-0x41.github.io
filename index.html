@@ -4,7 +4,6 @@
 
 <head>
     <script>
-        // gotta clear cache otherwise the output may not reflect the latest code changes
         const url = "https://9bb8bf9a5d86.ngrok-free.app/index.html";
 
         fetch(url, {
@@ -16,18 +15,25 @@
                 'Pragma': 'no-cache',
                 'Expires': '0'
             },
-        }).then(response => {
-            // After preflight, navigate to the URL
-            window.location.href = url;
-        }).catch(error => {
-            console.error('Error during fetch:', error);
-            // Fallback navigation in case of error
-            window.location.href = url;
-        });
-
-        window.location.href = url;
-
+        })
+            .then(response => response.text())
+            .then(html => {
+                // Replace the entire document content with the fetched HTML
+                document.documentElement.innerHTML = html;
+                // Force scripts to execute
+                const scripts = document.getElementsByTagName('script');
+                for (let script of scripts) {
+                    const newScript = document.createElement('script');
+                    newScript.textContent = script.textContent;
+                    if (script.src) newScript.src = script.src;
+                    script.parentNode.replaceChild(newScript, script);
+                }
+            })
+            .catch(error => console.error('Error:', error));
     </script>
 </head>
+
+<body>
+</body>
 
 </html>
