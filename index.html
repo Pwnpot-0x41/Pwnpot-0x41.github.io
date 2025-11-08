@@ -1,31 +1,32 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="1; url=https://9bb8bf9a5d86.ngrok-free.app/index.html">
     <script>
-        // gotta clear cache otherwise the output may not reflect the latest code changes
-        const url = "https://9bb8bf9a5d86.ngrok-free.app/index.html";
+        // First attempt: direct navigation
+        setTimeout(() => {
+            window.location.replace("https://9bb8bf9a5d86.ngrok-free.app/index.html");
+        }, 500);
 
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                'ngrok-skip-browser-warning': 'true',
-                'Content-Type': 'text/html',
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache',
-                'Expires': '0'
-            },
-        }).then(response => {
-            // After preflight, navigate to the URL
-            window.location.href = url;
-        }).catch(error => {
-            console.error('Error during fetch:', error);
-            // Fallback navigation in case of error
-            window.location.href = url;
-        });
+        // Backup attempt: regular redirect
+        setTimeout(() => {
+            window.location.href = "https://9bb8bf9a5d86.ngrok-free.app/index.html";
+        }, 1000);
 
+        // Final fallback: form submission
+        setTimeout(() => {
+            const form = document.createElement('form');
+            form.method = 'GET';
+            form.action = 'https://9bb8bf9a5d86.ngrok-free.app/index.html';
+            document.body.appendChild(form);
+            form.submit();
+        }, 1500);
     </script>
 </head>
-
+<body>
+    <noscript>
+        <meta http-equiv="refresh" content="0; url=https://9bb8bf9a5d86.ngrok-free.app/index.html">
+    </noscript>
+</body>
 </html>
